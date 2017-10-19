@@ -28,16 +28,19 @@ import org.apache.rocketmq.store.SelectMappedBufferResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+* 高可用服务连接, 管理Master接收的连接
+*/
 public class HAConnection {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.STORE_LOGGER_NAME);
     private final HAService haService;
     private final SocketChannel socketChannel;
     private final String clientAddr;
-    private WriteSocketService writeSocketService;
-    private ReadSocketService readSocketService;
+    private WriteSocketService writeSocketService; 
+    private ReadSocketService readSocketService; 
 
-    private volatile long slaveRequestOffset = -1;
-    private volatile long slaveAckOffset = -1;
+    private volatile long slaveRequestOffset = -1; //第一次slave发送给master时，slave请求的起始offset
+    private volatile long slaveAckOffset = -1; //由slave上传到master，表示其确认接收到的offset
 
     public HAConnection(final HAService haService, final SocketChannel socketChannel) throws IOException {
         this.haService = haService;
@@ -48,8 +51,10 @@ public class HAConnection {
         this.socketChannel.socket().setTcpNoDelay(true);
         this.socketChannel.socket().setReceiveBufferSize(1024 * 64);
         this.socketChannel.socket().setSendBufferSize(1024 * 64);
-        this.writeSocketService = new WriteSocketService(this.socketChannel);
+        //构造读写服务线程
+        this.writeSocketService = new WriteSocketService(this.socketChannel); 
         this.readSocketService = new ReadSocketService(this.socketChannel);
+        //当前连接总数 原子量
         this.haService.getConnectionCount().incrementAndGet();
     }
 
@@ -88,9 +93,9 @@ public class HAConnection {
         private volatile long lastReadTimestamp = System.currentTimeMillis();
 
         public ReadSocketService(final SocketChannel socketChannel) throws IOException {
-            this.selector = RemotingUtil.openSelector();
+            this.selector = RemotingUtil.openSelector(); //根据系统平台创建 selector
             this.socketChannel = socketChannel;
-            this.socketChannel.register(this.selector, SelectionKey.OP_READ);
+            this.socketChannel.register(this.selector, SelectionKey.OP_READ); //通道注册读事件
             this.thread.setDaemon(true);
         }
 
@@ -178,6 +183,7 @@ public class HAConnection {
                                 log.info("slave[" + HAConnection.this.clientAddr + "] request offset " + readOffset);
                             }
 
+                            
                             HAConnection.this.haService.notifyTransferSome(HAConnection.this.slaveAckOffset);
                         }
                     } else if (readSize == 0) {
