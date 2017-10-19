@@ -231,10 +231,13 @@ public class HAConnection {
                         Thread.sleep(10);
                         continue;
                     }
-
+                    //是否第一次传输
                     if (-1 == this.nextTransferFromWhere) {
+                        //第一次请求 slave上没有数据
                         if (0 == HAConnection.this.slaveRequestOffset) {
+                            //全部传输 maxoffset
                             long masterOffset = HAConnection.this.haService.getDefaultMessageStore().getCommitLog().getMaxOffset();
+                            //获取下一个文件位置
                             masterOffset =
                                 masterOffset
                                     - (masterOffset % HAConnection.this.haService.getDefaultMessageStore().getMessageStoreConfig()
@@ -244,8 +247,10 @@ public class HAConnection {
                                 masterOffset = 0;
                             }
 
+                            //赋值标记
                             this.nextTransferFromWhere = masterOffset;
                         } else {
+                            //从slave请求的位置传输 commitlog数据
                             this.nextTransferFromWhere = HAConnection.this.slaveRequestOffset;
                         }
 
@@ -253,21 +258,24 @@ public class HAConnection {
                             + "], and slave request " + HAConnection.this.slaveRequestOffset);
                     }
 
-                    if (this.lastWriteOver) {
+                    if (this.lastWriteOver) {//传输完毕
 
+                        //距离上次传输的时间
                         long interval =
                             HAConnection.this.haService.getDefaultMessageStore().getSystemClock().now() - this.lastWriteTimestamp;
 
+                        //大于心跳时间
                         if (interval > HAConnection.this.haService.getDefaultMessageStore().getMessageStoreConfig()
                             .getHaSendHeartbeatInterval()) {
 
                             // Build Header
                             this.byteBufferHeader.position(0);
-                            this.byteBufferHeader.limit(headerSize);
+                            this.byteBufferHeader.limit(headerSize); //8 + 4
                             this.byteBufferHeader.putLong(this.nextTransferFromWhere);
                             this.byteBufferHeader.putInt(0);
                             this.byteBufferHeader.flip();
 
+                            //发送心跳包
                             this.lastWriteOver = this.transferData();
                             if (!this.lastWriteOver)
                                 continue;
@@ -278,9 +286,11 @@ public class HAConnection {
                             continue;
                     }
 
+                    //获取commitlog 消息数据
                     SelectMappedBufferResult selectResult =
                         HAConnection.this.haService.getDefaultMessageStore().getCommitLogData(this.nextTransferFromWhere);
                     if (selectResult != null) {
+                        //是否需要分块发送
                         int size = selectResult.getSize();
                         if (size > HAConnection.this.haService.getDefaultMessageStore().getMessageStoreConfig().getHaTransferBatchSize()) {
                             size = HAConnection.this.haService.getDefaultMessageStore().getMessageStoreConfig().getHaTransferBatchSize();
@@ -357,7 +367,7 @@ public class HAConnection {
                 return !this.byteBufferHeader.hasRemaining();
             }
 
-            writeSizeZeroTimes = 0;
+            writeSizeZeroTimes = 0; //控制写出完成 3次写进去0字节
 
             // Write Body
             if (!this.byteBufferHeader.hasRemaining()) {
