@@ -38,20 +38,21 @@ import org.slf4j.LoggerFactory;
 public class NamesrvController {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
 
-    private final NamesrvConfig namesrvConfig;
+    private final NamesrvConfig namesrvConfig; //命名服务配置对象
 
-    private final NettyServerConfig nettyServerConfig;
+    private final NettyServerConfig nettyServerConfig; //netty服务配置对象
 
+    //定时任务线程框架服务 监控broker状态
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl(
         "NSScheduledThread"));
-    private final KVConfigManager kvConfigManager;
-    private final RouteInfoManager routeInfoManager;
+    private final KVConfigManager kvConfigManager;  //kv配置对象
+    private final RouteInfoManager routeInfoManager; //路由信息
 
-    private RemotingServer remotingServer;
+    private RemotingServer remotingServer; //netty连接服务
 
-    private BrokerHousekeepingService brokerHousekeepingService;
+    private BrokerHousekeepingService brokerHousekeepingService; //broker 连接监听对象
 
-    private ExecutorService remotingExecutor;
+    private ExecutorService remotingExecutor; //工作线程框架服务
 
     private Configuration configuration;
 
@@ -79,6 +80,7 @@ public class NamesrvController {
 
         this.registerProcessor();
 
+       
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
             @Override

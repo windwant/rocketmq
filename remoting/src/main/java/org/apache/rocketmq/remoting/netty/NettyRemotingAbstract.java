@@ -154,6 +154,7 @@ public abstract class NettyRemotingAbstract {
      * @param cmd request command.
      */
     public void processRequestCommand(final ChannelHandlerContext ctx, final RemotingCommand cmd) {
+        //根据command code 查找 处理 processor
         final Pair<NettyRequestProcessor, ExecutorService> matched = this.processorTable.get(cmd.getCode());
         final Pair<NettyRequestProcessor, ExecutorService> pair = null == matched ? this.defaultRequestProcessor : matched;
         final int opaque = cmd.getOpaque();
@@ -163,6 +164,7 @@ public abstract class NettyRemotingAbstract {
                 @Override
                 public void run() {
                     try {
+                        //前后置钩子
                         RPCHook rpcHook = NettyRemotingAbstract.this.getRPCHook();
                         if (rpcHook != null) {
                             rpcHook.doBeforeRequest(RemotingHelper.parseChannelRemoteAddr(ctx.channel()), cmd);
@@ -173,6 +175,7 @@ public abstract class NettyRemotingAbstract {
                             rpcHook.doAfterResponse(RemotingHelper.parseChannelRemoteAddr(ctx.channel()), cmd, response);
                         }
 
+                        //重复使用请求连接
                         if (!cmd.isOnewayRPC()) {
                             if (response != null) {
                                 response.setOpaque(opaque);
@@ -386,10 +389,11 @@ public abstract class NettyRemotingAbstract {
         }
     }
 
+    //异步执行处理
     public void invokeAsyncImpl(final Channel channel, final RemotingCommand request, final long timeoutMillis,
         final InvokeCallback invokeCallback)
         throws InterruptedException, RemotingTooMuchRequestException, RemotingTimeoutException, RemotingSendRequestException {
-        final int opaque = request.getOpaque();
+        final int opaque = request.getOpaque();//通道重复使用标记
         boolean acquired = this.semaphoreAsync.tryAcquire(timeoutMillis, TimeUnit.MILLISECONDS);
         if (acquired) {
             final SemaphoreReleaseOnlyOnce once = new SemaphoreReleaseOnlyOnce(this.semaphoreAsync);
@@ -400,6 +404,7 @@ public abstract class NettyRemotingAbstract {
                 channel.writeAndFlush(request).addListener(new ChannelFutureListener() {
                     @Override
                     public void operationComplete(ChannelFuture f) throws Exception {
+                        //异步执行结果
                         if (f.isSuccess()) {
                             responseFuture.setSendRequestOK(true);
                             return;
@@ -440,25 +445,26 @@ public abstract class NettyRemotingAbstract {
             }
         }
     }
-
+    
     public void invokeOnewayImpl(final Channel channel, final RemotingCommand request, final long timeoutMillis)
         throws InterruptedException, RemotingTooMuchRequestException, RemotingTimeoutException, RemotingSendRequestException {
-        request.markOnewayRPC();
-        boolean acquired = this.semaphoreOneway.tryAcquire(timeoutMillis, TimeUnit.MILLISECONDS);
+        request.markOnewayRPC(); //一次性请求
+        boolean acquired = this.semaphoreOneway.tryAcquire(timeoutMillis, TimeUnit.MILLISECONDS);//获取处理资源
         if (acquired) {
+            //单次执行信号量工具类
             final SemaphoreReleaseOnlyOnce once = new SemaphoreReleaseOnlyOnce(this.semaphoreOneway);
             try {
-                channel.writeAndFlush(request).addListener(new ChannelFutureListener() {
+                channel.writeAndFlush(request).addListener(new ChannelFutureListener() {//异步执行进度监听
                     @Override
                     public void operationComplete(ChannelFuture f) throws Exception {
-                        once.release();
+                        once.release();//执行完毕释放资源
                         if (!f.isSuccess()) {
                             log.warn("send a request command to channel <" + channel.remoteAddress() + "> failed.");
                         }
                     }
                 });
             } catch (Exception e) {
-                once.release();
+                once.release();//异常释放
                 log.warn("write send a request command to channel <" + channel.remoteAddress() + "> failed.");
                 throw new RemotingSendRequestException(RemotingHelper.parseChannelRemoteAddr(channel), e);
             }
@@ -478,14 +484,16 @@ public abstract class NettyRemotingAbstract {
         }
     }
 
+    //存储并处理用户连接通道空闲、连接、关闭、异常事件 custom channel event listener
     class NettyEventExecutor extends ServiceThread {
+        //并发队列 线程安全 先进先出
         private final LinkedBlockingQueue<NettyEvent> eventQueue = new LinkedBlockingQueue<NettyEvent>();
-        private final int maxSize = 10000;
+        private final int maxSize = 10000; //并发队列大小
 
         public void putNettyEvent(final NettyEvent event) {
             if (this.eventQueue.size() <= maxSize) {
                 this.eventQueue.add(event);
-            } else {
+            } else {//超过队列容量则丢弃
                 log.warn("event queue size[{}] enough, so drop this event {}", this.eventQueue.size(), event.toString());
             }
         }
@@ -498,19 +506,20 @@ public abstract class NettyRemotingAbstract {
 
             while (!this.isStopped()) {
                 try {
+                    //获取并移除此队列的头部，在指定的等待时间前等待可用的元素（如果有必要）
                     NettyEvent event = this.eventQueue.poll(3000, TimeUnit.MILLISECONDS);
                     if (event != null && listener != null) {
                         switch (event.getType()) {
-                            case IDLE:
+                            case IDLE://通道空闲
                                 listener.onChannelIdle(event.getRemoteAddr(), event.getChannel());
                                 break;
-                            case CLOSE:
+                            case CLOSE://通道关闭
                                 listener.onChannelClose(event.getRemoteAddr(), event.getChannel());
                                 break;
-                            case CONNECT:
+                            case CONNECT://通道连接
                                 listener.onChannelConnect(event.getRemoteAddr(), event.getChannel());
                                 break;
-                            case EXCEPTION:
+                            case EXCEPTION://异常
                                 listener.onChannelException(event.getRemoteAddr(), event.getChannel());
                                 break;
                             default:

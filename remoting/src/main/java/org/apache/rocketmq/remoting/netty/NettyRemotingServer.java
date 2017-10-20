@@ -59,16 +59,16 @@ import org.slf4j.LoggerFactory;
 
 public class NettyRemotingServer extends NettyRemotingAbstract implements RemotingServer {
     private static final Logger log = LoggerFactory.getLogger(RemotingHelper.ROCKETMQ_REMOTING);
-    private final ServerBootstrap serverBootstrap;
-    private final EventLoopGroup eventLoopGroupSelector;
-    private final EventLoopGroup eventLoopGroupBoss;
+    private final ServerBootstrap serverBootstrap; //辅助启动类,提供相应API实现通信管道初始化
+    private final EventLoopGroup eventLoopGroupSelector; //Reactor线程池 处理网络读写
+    private final EventLoopGroup eventLoopGroupBoss;//Reactor线程池 用于处理连接
     private final NettyServerConfig nettyServerConfig;
 
     private final ExecutorService publicExecutor;
-    private final ChannelEventListener channelEventListener;
+    private final ChannelEventListener channelEventListener; //
 
     private final Timer timer = new Timer("ServerHouseKeepingService", true);
-    private DefaultEventExecutorGroup defaultEventExecutorGroup;
+    private DefaultEventExecutorGroup defaultEventExecutorGroup;//用于执行ChannelHandlers的线程池
 
     private RPCHook rpcHook;
 
@@ -164,22 +164,25 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(SocketChannel ch) throws Exception {
+                        //ChannelPipeline addLast(EventExecutorGroup group, ChannelHandler... handlers)
+                        //defaultEventExecutorGroup：用于执行ChannelHandlers的线程池
                         ch.pipeline().addLast(
                             defaultEventExecutorGroup,
-                            new NettyEncoder(),
-                            new NettyDecoder(),
-                            new IdleStateHandler(0, 0, nettyServerConfig.getServerChannelMaxIdleTimeSeconds()),
-                            new NettyConnectManageHandler(),
+                            new NettyEncoder(),//编码
+                            new NettyDecoder(),//解码
+                            new IdleStateHandler(0, 0, nettyServerConfig.getServerChannelMaxIdleTimeSeconds()), //Triggers an IdleStateEvent when a Channel has not performed read, write, or both operation for a while.
+                            new NettyConnectManageHandler(), //
                             new NettyServerHandler());
                     }
                 });
 
+        //使用内存池分配内存
         if (nettyServerConfig.isServerPooledByteBufAllocatorEnable()) {
             childHandler.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         }
 
         try {
-            ChannelFuture sync = this.serverBootstrap.bind().sync();
+            ChannelFuture sync = this.serverBootstrap.bind().sync(); //绑定监听端口并阻塞 返回异步通知回调
             InetSocketAddress addr = (InetSocketAddress) sync.channel().localAddress();
             this.port = addr.getPort();
         } catch (InterruptedException e1) {
@@ -195,6 +198,7 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
             @Override
             public void run() {
                 try {
+                    // 扫描闭关过期丢弃的请求 This method is periodically invoked to scan and expire deprecated request.
                     NettyRemotingServer.this.scanResponseTable();
                 } catch (Throwable e) {
                     log.error("scanResponseTable exception", e);
@@ -298,6 +302,7 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
         return this.publicExecutor;
     }
 
+    //服务主要处理handler
     class NettyServerHandler extends SimpleChannelInboundHandler<RemotingCommand> {
 
         @Override
@@ -306,6 +311,7 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
         }
     }
 
+    //ChannelDuplexHandler  Deprecated.  Use ChannelHandlerAdapter instead.
     class NettyConnectManageHandler extends ChannelDuplexHandler {
         @Override
         public void channelRegistered(ChannelHandlerContext ctx) throws Exception {

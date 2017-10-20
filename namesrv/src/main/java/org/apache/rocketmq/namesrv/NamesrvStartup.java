@@ -71,12 +71,13 @@ public class NamesrvStartup {
             final NamesrvConfig namesrvConfig = new NamesrvConfig();
             final NettyServerConfig nettyServerConfig = new NettyServerConfig();
             nettyServerConfig.setListenPort(9876);
-            if (commandLine.hasOption('c')) {
+            if (commandLine.hasOption('c')) { //自定义配置文件
                 String file = commandLine.getOptionValue('c');
                 if (file != null) {
                     InputStream in = new BufferedInputStream(new FileInputStream(file));
                     properties = new Properties();
                     properties.load(in);
+                    //配置Bean构造
                     MixAll.properties2Object(properties, namesrvConfig);
                     MixAll.properties2Object(properties, nettyServerConfig);
 
@@ -87,12 +88,14 @@ public class NamesrvStartup {
                 }
             }
 
+            //是否打印配置信息
             if (commandLine.hasOption('p')) {
                 MixAll.printObjectProperties(null, namesrvConfig);
                 MixAll.printObjectProperties(null, nettyServerConfig);
                 System.exit(0);
             }
 
+            //处理commondline 参数信息固化
             MixAll.properties2Object(ServerUtil.commandLine2Properties(commandLine), namesrvConfig);
 
             if (null == namesrvConfig.getRocketmqHome()) {
@@ -115,12 +118,14 @@ public class NamesrvStartup {
             // remember all configs to prevent discard
             controller.getConfiguration().registerConfig(properties);
 
+            //服务初始化
             boolean initResult = controller.initialize();
             if (!initResult) {
                 controller.shutdown();
                 System.exit(-3);
             }
 
+            //关闭钩子
             Runtime.getRuntime().addShutdownHook(new ShutdownHookThread(log, new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
