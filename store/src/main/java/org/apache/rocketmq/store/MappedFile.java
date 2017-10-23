@@ -63,7 +63,7 @@ public class MappedFile extends ReferenceResource {
     protected ByteBuffer writeBuffer = null; //写缓冲区
     protected TransientStorePool transientStorePool = null; //临时存储
     private String fileName;
-    private long fileFromOffset;
+    private long fileFromOffset; //file 在MappedFileQueue中的偏移量
     private File file;
     private MappedByteBuffer mappedByteBuffer; //映射缓冲
     private volatile long storeTimestamp = 0;
@@ -387,6 +387,12 @@ public class MappedFile extends ReferenceResource {
         return this.fileSize == this.wrotePosition.get();
     }
 
+    /**
+     * 返回从pos到size的内存映射，用于读取数据。
+     * @param pos
+     * @param size
+     * @return
+     */
     public SelectMappedBufferResult selectMappedBuffer(int pos, int size) {
         int readPosition = getReadPosition();
         if ((pos + size) <= readPosition) {

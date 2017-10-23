@@ -942,6 +942,9 @@ public class CommitLog {
         }
     }
 
+    /**
+     * 实时刷盘服务
+     */
     class FlushRealTimeService extends FlushCommitLogService {
         private long lastFlushTimestamp = 0;
         private long printTimes = 0;
@@ -1054,6 +1057,7 @@ public class CommitLog {
 
     /**
      * GroupCommit Service
+     * 同步刷盘 每提交一条消息，就触发该服务，消息写入后立即刷盘，
      */
     class GroupCommitService extends FlushCommitLogService {
         private volatile List<GroupCommitRequest> requestsWrite = new ArrayList<GroupCommitRequest>();

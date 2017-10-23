@@ -34,14 +34,14 @@ public class BrokerConfig {
     @ImportantField
     private String namesrvAddr = System.getProperty(MixAll.NAMESRV_ADDR_PROPERTY, System.getenv(MixAll.NAMESRV_ADDR_ENV));
     @ImportantField
-    private String brokerIP1 = RemotingUtil.getLocalAddress();
-    private String brokerIP2 = RemotingUtil.getLocalAddress();
+    private String brokerIP1 = RemotingUtil.getLocalAddress(); //broker所在的机器ip，默认不用设置，如果机器有多个网卡，需要手动设置
+    private String brokerIP2 = RemotingUtil.getLocalAddress(); //默认值同brokerIP1，其作用为slave从master的brokerIP2同步数据
     @ImportantField
     private String brokerName = localHostName();
     @ImportantField
     private String brokerClusterName = "DefaultCluster";
     @ImportantField
-    private long brokerId = MixAll.MASTER_ID;
+    private long brokerId = MixAll.MASTER_ID; //0:master 非0:slave
     private int brokerPermission = PermName.PERM_READ | PermName.PERM_WRITE;
     private int defaultTopicQueueNums = 8;
     @ImportantField

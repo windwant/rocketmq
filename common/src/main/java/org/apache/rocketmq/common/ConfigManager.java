@@ -26,6 +26,10 @@ public abstract class ConfigManager {
 
     public abstract String encode();
 
+    /**
+     * 加载数据
+     * @return
+     */
     public boolean load() {
         String fileName = null;
         try {
@@ -67,6 +71,9 @@ public abstract class ConfigManager {
 
     public abstract void decode(final String jsonString);
 
+    /**
+     * 将offsetTable持久化到文件
+     */
     public synchronized void persist() {
         String jsonString = this.encode(true);
         if (jsonString != null) {

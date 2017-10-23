@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Create MappedFile in advance
+ * 处理并发请求
  */
 public class AllocateMappedFileService extends ServiceThread {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.STORE_LOGGER_NAME);

@@ -123,7 +123,7 @@ public class BrokerController {
     private MessageStore messageStore;
     private RemotingServer remotingServer;
     private RemotingServer fastRemotingServer;
-    private TopicConfigManager topicConfigManager;
+    private TopicConfigManager topicConfigManager;//opic配置管理
     private ExecutorService sendMessageExecutor;
     private ExecutorService pullMessageExecutor;
     private ExecutorService adminBrokerExecutor;
@@ -381,6 +381,9 @@ public class BrokerController {
         return result;
     }
 
+    /**
+     * 注册一系列处理器来处理客户端请求，或响应客户端请求
+     */
     public void registerProcessor() {
         /**
          * SendMessageProcessor
