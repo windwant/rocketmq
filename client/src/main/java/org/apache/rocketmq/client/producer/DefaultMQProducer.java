@@ -52,7 +52,7 @@ import org.apache.rocketmq.remoting.exception.RemotingException;
  * and used among multiple threads context.
  * </p>
  */
-public class DefaultMQProducer extends ClientConfig implements MQProducer {
+public class DefaultMQProducer extends ClientConfig/* 客户端配置类 */ implements MQProducer {
 
     /**
      * Wrapping internal implementations for virtually all methods presented in this class.

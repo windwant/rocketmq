@@ -21,12 +21,12 @@ import org.apache.rocketmq.common.MixAll;
 
 public class SubscriptionGroupConfig {
 
-    private String groupName;
+    private String groupName; //群组名称
 
     private boolean consumeEnable = true;
     private boolean consumeFromMinEnable = true;
 
-    private boolean consumeBroadcastEnable = true;
+    private boolean consumeBroadcastEnable = true; //广播
 
     private int retryQueueNums = 1;
 

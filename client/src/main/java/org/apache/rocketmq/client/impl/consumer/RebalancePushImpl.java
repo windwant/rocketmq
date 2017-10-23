@@ -117,6 +117,7 @@ public class RebalancePushImpl extends RebalanceImpl {
         this.defaultMQPushConsumerImpl.getOffsetStore().removeOffset(mq);
     }
 
+    //计算拉取位置
     @Override
     public long computePullFromWhere(MessageQueue mq) {
         long result = -1;

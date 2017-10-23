@@ -47,7 +47,7 @@ public class TopicConfigManager extends ConfigManager {
 
     private final ConcurrentMap<String, TopicConfig> topicConfigTable =
         new ConcurrentHashMap<String, TopicConfig>(1024);
-    private final DataVersion dataVersion = new DataVersion();
+    private final DataVersion dataVersion = new DataVersion(); //配置文件版本 用于同步比较
     private final Set<String> systemTopicList = new HashSet<String>();
     private transient BrokerController brokerController;
 
@@ -56,7 +56,7 @@ public class TopicConfigManager extends ConfigManager {
 
     public TopicConfigManager(BrokerController brokerController) {
         this.brokerController = brokerController;
-        //大括号 分块
+        //代码块 
         {
             // MixAll.SELF_TEST_TOPIC
             String topic = MixAll.SELF_TEST_TOPIC;

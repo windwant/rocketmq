@@ -128,13 +128,13 @@ public class AdminBrokerProcessor implements NettyRequestProcessor {
     public RemotingCommand processRequest(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         switch (request.getCode()) {
-            case RequestCode.UPDATE_AND_CREATE_TOPIC:
+            case RequestCode.UPDATE_AND_CREATE_TOPIC: //创建主题
                 return this.updateAndCreateTopic(ctx, request);
-            case RequestCode.DELETE_TOPIC_IN_BROKER:
+            case RequestCode.DELETE_TOPIC_IN_BROKER: //删除
                 return this.deleteTopic(ctx, request);
-            case RequestCode.GET_ALL_TOPIC_CONFIG:
+            case RequestCode.GET_ALL_TOPIC_CONFIG: //获取主题配置
                 return this.getAllTopicConfig(ctx, request);
-            case RequestCode.UPDATE_BROKER_CONFIG:
+            case RequestCode.UPDATE_BROKER_CONFIG: //更新broker配置
                 return this.updateBrokerConfig(ctx, request);
             case RequestCode.GET_BROKER_CONFIG:
                 return this.getBrokerConfig(ctx, request);

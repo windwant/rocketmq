@@ -25,10 +25,20 @@ import org.slf4j.Logger;
 
 /**
  * Average Hashing queue algorithm
+ * 消费者分配队列
  */
 public class AllocateMessageQueueAveragely implements AllocateMessageQueueStrategy {
     private final Logger log = ClientLogger.getLog();
 
+    /**
+     * 为消费者平均分配queue。其首先需要根据所有的消费者数和所有queue的量计算出平均每个消费者需要消费多少个queue，
+     * 再根据当前消费者在消费者组的位置(即currentCID在cidAll的位置)，分配相应的queue。
+     * @param consumerGroup current consumer group
+     * @param currentCID current consumer id
+     * @param mqAll message queue set in current topic
+     * @param cidAll consumer set in current consumer group
+     * @return
+     */
     @Override
     public List<MessageQueue> allocate(String consumerGroup, String currentCID, List<MessageQueue> mqAll,
         List<String> cidAll) {

@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 public class SubscriptionGroupManager extends ConfigManager {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
 
+    //订阅表 A Map providing thread safety and atomicity guarantees. 分段锁
     private final ConcurrentMap<String, SubscriptionGroupConfig> subscriptionGroupTable =
         new ConcurrentHashMap<String, SubscriptionGroupConfig>(1024);
     private final DataVersion dataVersion = new DataVersion();
@@ -158,6 +159,7 @@ public class SubscriptionGroupManager extends ConfigManager {
         }
     }
 
+    //配置以josn形式序列化
     public String encode(final boolean prettyFormat) {
         return RemotingSerializable.toJson(this, prettyFormat);
     }

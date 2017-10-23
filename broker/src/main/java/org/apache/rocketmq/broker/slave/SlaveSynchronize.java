@@ -52,6 +52,7 @@ public class SlaveSynchronize {
         this.syncSubscriptionGroupConfig();
     }
 
+    //同步更新
     private void syncTopicConfig() {
         String masterAddrBak = this.masterAddr;
         if (masterAddrBak != null) {

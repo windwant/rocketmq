@@ -75,18 +75,18 @@ public abstract class AbstractSendMessageProcessor implements NettyRequestProces
         }
         SendMessageContext mqtraceContext;
         mqtraceContext = new SendMessageContext();
-        mqtraceContext.setProducerGroup(requestHeader.getProducerGroup());
-        mqtraceContext.setTopic(requestHeader.getTopic());
-        mqtraceContext.setMsgProps(requestHeader.getProperties());
-        mqtraceContext.setBornHost(RemotingHelper.parseChannelRemoteAddr(ctx.channel()));
-        mqtraceContext.setBrokerAddr(this.brokerController.getBrokerAddr());
-        mqtraceContext.setBrokerRegionId(this.brokerController.getBrokerConfig().getRegionId());
+        mqtraceContext.setProducerGroup(requestHeader.getProducerGroup());//生产者群组
+        mqtraceContext.setTopic(requestHeader.getTopic()); //主题
+        mqtraceContext.setMsgProps(requestHeader.getProperties());//消息属性
+        mqtraceContext.setBornHost(RemotingHelper.parseChannelRemoteAddr(ctx.channel()));//源host
+        mqtraceContext.setBrokerAddr(this.brokerController.getBrokerAddr()); //
+        mqtraceContext.setBrokerRegionId(this.brokerController.getBrokerConfig().getRegionId()); //分区ID
         mqtraceContext.setBornTimeStamp(requestHeader.getBornTimestamp());
 
         Map<String, String> properties = MessageDecoder.string2messageProperties(requestHeader.getProperties());
         String uniqueKey = properties.get(MessageConst.PROPERTY_UNIQ_CLIENT_MESSAGE_ID_KEYIDX);
-        properties.put(MessageConst.PROPERTY_MSG_REGION, this.brokerController.getBrokerConfig().getRegionId());
-        properties.put(MessageConst.PROPERTY_TRACE_SWITCH, String.valueOf(this.brokerController.getBrokerConfig().isTraceOn()));
+        properties.put(MessageConst.PROPERTY_MSG_REGION, this.brokerController.getBrokerConfig().getRegionId()); //
+        properties.put(MessageConst.PROPERTY_TRACE_SWITCH, String.valueOf(this.brokerController.getBrokerConfig().isTraceOn()));//
         requestHeader.setProperties(MessageDecoder.messageProperties2String(properties));
 
         if (uniqueKey == null) {
