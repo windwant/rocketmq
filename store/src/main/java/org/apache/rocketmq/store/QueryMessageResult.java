@@ -20,6 +20,9 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+* 查询结果包装
+*/
 public class QueryMessageResult {
 
     private final List<SelectMappedBufferResult> messageMapedList =

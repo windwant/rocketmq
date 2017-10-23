@@ -46,8 +46,8 @@ public class HAConnection {
         this.haService = haService;
         this.socketChannel = socketChannel;
         this.clientAddr = this.socketChannel.socket().getRemoteSocketAddress().toString();
-        this.socketChannel.configureBlocking(false);
-        this.socketChannel.socket().setSoLinger(false, -1);
+        this.socketChannel.configureBlocking(false); //非阻塞模式 - If true then this channel will be placed in blocking mode; if false then it will be placed non-blocking mode
+        this.socketChannel.socket().setSoLinger(false, -1); //控制Socket关闭时的行为 方法会立即返回，但底层的Socket实际上并不会立即关闭，他会立即延迟一段时间，知道发送完剩余的数据，才会真正的关闭Socket，断开连接
         this.socketChannel.socket().setTcpNoDelay(true);
         this.socketChannel.socket().setReceiveBufferSize(1024 * 64);
         this.socketChannel.socket().setSendBufferSize(1024 * 64);
@@ -132,7 +132,8 @@ public class HAConnection {
             haService.removeConnection(HAConnection.this);
 
             HAConnection.this.haService.getConnectionCount().decrementAndGet();
-
+            
+            //Retrieves the key representing the channel's registration with the given selector.
             SelectionKey sk = this.socketChannel.keyFor(this.selector);
             if (sk != null) {
                 sk.cancel();

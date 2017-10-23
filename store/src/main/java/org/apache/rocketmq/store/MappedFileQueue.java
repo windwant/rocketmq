@@ -55,6 +55,7 @@ public class MappedFileQueue {
         this.allocateMappedFileService = allocateMappedFileService;
     }
 
+    //自检 文件大小
     public void checkSelf() {
 
         if (!this.mappedFiles.isEmpty()) {
@@ -74,6 +75,7 @@ public class MappedFileQueue {
         }
     }
 
+    //更新时间大于
     public MappedFile getMappedFileByTime(final long timestamp) {
         Object[] mfs = this.copyMappedFiles(0);
 
@@ -97,10 +99,14 @@ public class MappedFileQueue {
             return null;
         }
 
+        //Returns an array containing all of the elements in this list in proper sequence (from first to last element).
+        //The returned array will be "safe" in that no references to it are maintained by this list. (In other words, this method must allocate a new array). The caller is thus free to modify the returned array.
+        //This method acts as bridge between array-based and collection-based APIs.
         mfs = this.mappedFiles.toArray();
         return mfs;
     }
 
+    //查找脏文件
     public void truncateDirtyFiles(long offset) {
         List<MappedFile> willRemoveFiles = new ArrayList<MappedFile>();
 

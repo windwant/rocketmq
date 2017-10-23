@@ -41,14 +41,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.nio.ch.DirectBuffer;
 
+/**
+* 底层存储形式
+*/
 public class MappedFile extends ReferenceResource {
-    public static final int OS_PAGE_SIZE = 1024 * 4;
+    public static final int OS_PAGE_SIZE = 1024 * 4; //系统页文件大小
     protected static final Logger log = LoggerFactory.getLogger(LoggerName.STORE_LOGGER_NAME);
 
-    private static final AtomicLong TOTAL_MAPPED_VIRTUAL_MEMORY = new AtomicLong(0);
+    private static final AtomicLong TOTAL_MAPPED_VIRTUAL_MEMORY = new AtomicLong(0); //映射虚拟内存
 
-    private static final AtomicInteger TOTAL_MAPPED_FILES = new AtomicInteger(0);
-    protected final AtomicInteger wrotePosition = new AtomicInteger(0);
+    private static final AtomicInteger TOTAL_MAPPED_FILES = new AtomicInteger(0); //映射文件总数
+    protected final AtomicInteger wrotePosition = new AtomicInteger(0); 
     //ADD BY ChenYang
     protected final AtomicInteger committedPosition = new AtomicInteger(0);
     private final AtomicInteger flushedPosition = new AtomicInteger(0);
@@ -57,12 +60,12 @@ public class MappedFile extends ReferenceResource {
     /**
      * Message will put to here first, and then reput to FileChannel if writeBuffer is not null.
      */
-    protected ByteBuffer writeBuffer = null;
-    protected TransientStorePool transientStorePool = null;
+    protected ByteBuffer writeBuffer = null; //写缓冲区
+    protected TransientStorePool transientStorePool = null; //临时存储
     private String fileName;
     private long fileFromOffset;
     private File file;
-    private MappedByteBuffer mappedByteBuffer;
+    private MappedByteBuffer mappedByteBuffer; //映射缓冲
     private volatile long storeTimestamp = 0;
     private boolean firstCreateInQueue = false;
 
@@ -160,8 +163,12 @@ public class MappedFile extends ReferenceResource {
         ensureDirOK(this.file.getParent());
 
         try {
+            //Instances of this class support both reading and writing to a random access file. 
+            //A random access file behaves like a large array of bytes stored in the file system. 
+            //There is a kind of cursor, or index into the implied array, called the file pointer; 
+            //input operations read bytes starting at the file pointer and advance the file pointer past the bytes read
             this.fileChannel = new RandomAccessFile(this.file, "rw").getChannel();
-            this.mappedByteBuffer = this.fileChannel.map(MapMode.READ_WRITE, 0, fileSize);
+            this.mappedByteBuffer = this.fileChannel.map(MapMode.READ_WRITE, 0, fileSize); //映射
             TOTAL_MAPPED_VIRTUAL_MEMORY.addAndGet(fileSize);
             TOTAL_MAPPED_FILES.incrementAndGet();
             ok = true;
@@ -205,6 +212,7 @@ public class MappedFile extends ReferenceResource {
         int currentPos = this.wrotePosition.get();
 
         if (currentPos < this.fileSize) {
+            //Creates a new byte buffer whose content is a shared subsequence of this buffer's content.
             ByteBuffer byteBuffer = writeBuffer != null ? writeBuffer.slice() : this.mappedByteBuffer.slice();
             byteBuffer.position(currentPos);
             AppendMessageResult result = null;
@@ -232,8 +240,8 @@ public class MappedFile extends ReferenceResource {
 
         if ((currentPos + data.length) <= this.fileSize) {
             try {
-                this.fileChannel.position(currentPos);
-                this.fileChannel.write(ByteBuffer.wrap(data));
+                this.fileChannel.position(currentPos); //指定写位置
+                this.fileChannel.write(ByteBuffer.wrap(data)); //ByteBuffer.wrap 包装
             } catch (Throwable e) {
                 log.error("Error occurred when append message to mappedFile.", e);
             }
@@ -278,9 +286,9 @@ public class MappedFile extends ReferenceResource {
                 try {
                     //We only append data to fileChannel or mappedByteBuffer, never both.
                     if (writeBuffer != null || this.fileChannel.position() != 0) {
-                        this.fileChannel.force(false);
+                        this.fileChannel.force(false);//Forces any updates to this channel's file to be written to the storage device that contains it.
                     } else {
-                        this.mappedByteBuffer.force();
+                        this.mappedByteBuffer.force();//Forces any changes made to this buffer's content to be written to the storage device containing the mapped file.
                     }
                 } catch (Throwable e) {
                     log.error("Error occurred when force data to disk.", e);

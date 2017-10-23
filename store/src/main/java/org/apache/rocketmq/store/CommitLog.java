@@ -69,9 +69,9 @@ public class CommitLog {
         this.defaultMessageStore = defaultMessageStore;
 
         if (FlushDiskType.SYNC_FLUSH == defaultMessageStore.getMessageStoreConfig().getFlushDiskType()) {
-            this.flushCommitLogService = new GroupCommitService();
+            this.flushCommitLogService = new GroupCommitService();//批次
         } else {
-            this.flushCommitLogService = new FlushRealTimeService();
+            this.flushCommitLogService = new FlushRealTimeService(); //实时
         }
 
         this.commitLogService = new CommitRealTimeService();
@@ -1160,7 +1160,7 @@ public class CommitLog {
         // The maximum length of the message
         private final int maxMessageSize;
         // Build Message Key
-        private final StringBuilder keyBuilder = new StringBuilder();
+        private final StringBuilder keyBuilder = new StringBuilder(); //“topic-queueid”
 
         private final StringBuilder msgIdBuilder = new StringBuilder();
 
@@ -1192,7 +1192,7 @@ public class CommitLog {
             keyBuilder.append('-');
             keyBuilder.append(msgInner.getQueueId());
             String key = keyBuilder.toString();
-            Long queueOffset = CommitLog.this.topicQueueTable.get(key);
+            Long queueOffset = CommitLog.this.topicQueueTable.get(key); //commitlog 存储cunchuqishiweizhi
             if (null == queueOffset) {
                 queueOffset = 0L;
                 CommitLog.this.topicQueueTable.put(key, queueOffset);

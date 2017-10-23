@@ -19,6 +19,9 @@ package org.apache.rocketmq.store;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 
+/**
+* The ManagementFactory class is a factory class for getting managed beans for the Java platform. This class consists of static methods each of which returns one or more platform MXBeans representing the management interface of a component of the Java virtual machine.
+*/
 public class StoreUtil {
     public static final long TOTAL_PHYSICAL_MEMORY_SIZE = getTotalPhysicalMemorySize();
 

@@ -71,7 +71,7 @@ public class BrokerConfig {
     @ImportantField
     private boolean rejectTransactionMessage = false;
     @ImportantField
-    private boolean fetchNamesrvAddrByAddressServer = false;
+    private boolean fetchNamesrvAddrByAddressServer = false;//由地址服务动态获取
     private int sendThreadPoolQueueCapacity = 10000;
     private int pullThreadPoolQueueCapacity = 100000;
     private int clientManagerThreadPoolQueueCapacity = 1000000;

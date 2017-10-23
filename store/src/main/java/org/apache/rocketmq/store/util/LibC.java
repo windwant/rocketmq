@@ -22,6 +22,10 @@ import com.sun.jna.NativeLong;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 
+/**
+* JNA(Java Native Access)：建立在JNI之上的Java开源框架，SUN主导开发，用来调用C、C++代码，
+* 尤其是底层库文件（windows中叫dll文件，linux下是so【shared object】文件）。
+*/
 public interface LibC extends Library {
     LibC INSTANCE = (LibC) Native.loadLibrary(Platform.isWindows() ? "msvcrt" : "c", LibC.class);
 

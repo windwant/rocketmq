@@ -29,6 +29,7 @@ public class PutMessageSpinLock implements PutMessageLock {
     public void lock() {
         boolean flag;
         do {
+            //(expect, update) success return true
             flag = this.putMessageSpinLock.compareAndSet(true, false);
         }
         while (!flag);

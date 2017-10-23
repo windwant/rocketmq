@@ -44,7 +44,8 @@ public class TransientStorePool {
     }
 
     /**
-     * It's a heavy init method.
+     * It's a heavy init method. 
+     * 调用本地 C 动态链接库 初始化内存
      */
     public void init() {
         for (int i = 0; i < poolSize; i++) {

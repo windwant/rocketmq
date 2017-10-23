@@ -27,14 +27,14 @@ import org.slf4j.LoggerFactory;
 public class ConsumeQueue {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.STORE_LOGGER_NAME);
 
-    public static final int CQ_STORE_UNIT_SIZE = 20;
+    public static final int CQ_STORE_UNIT_SIZE = 20; //存储单元
     private static final Logger LOG_ERROR = LoggerFactory.getLogger(LoggerName.STORE_ERROR_LOGGER_NAME);
 
     private final DefaultMessageStore defaultMessageStore;
 
     private final MappedFileQueue mappedFileQueue;
-    private final String topic;
-    private final int queueId;
+    private final String topic; //订阅主题
+    private final int queueId; //队列ID
     private final ByteBuffer byteBufferIndex;
 
     private final String storePath;
@@ -58,7 +58,7 @@ public class ConsumeQueue {
 
         String queueDir = this.storePath
             + File.separator + topic
-            + File.separator + queueId;
+            + File.separator + queueId; //队列存储地址
 
         this.mappedFileQueue = new MappedFileQueue(queueDir, mappedFileSize, null);
 
@@ -76,7 +76,7 @@ public class ConsumeQueue {
     }
 
     public boolean load() {
-        boolean result = this.mappedFileQueue.load();
+        boolean result = this.mappedFileQueue.load(); //Load previously stored messages.
         log.info("load consume queue " + this.topic + "-" + this.queueId + " " + (result ? "OK" : "Failed"));
         if (isExtReadEnable()) {
             result &= this.consumeQueueExt.load();
