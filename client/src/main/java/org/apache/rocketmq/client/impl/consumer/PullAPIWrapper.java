@@ -54,6 +54,7 @@ public class PullAPIWrapper {
     private final MQClientInstance mQClientFactory;
     private final String consumerGroup;
     private final boolean unitMode;
+    //存储了mq对应的brokerid，即从broker master拉取消息，还是从broker slave拉取消息。
     private ConcurrentMap<MessageQueue, AtomicLong/* brokerId */> pullFromWhichNodeTable =
         new ConcurrentHashMap<MessageQueue, AtomicLong>(32);
     private volatile boolean connectBrokerByUser = false;
@@ -67,6 +68,7 @@ public class PullAPIWrapper {
         this.unitMode = unitMode;
     }
 
+    //处理pullKernelImpl返回的结果，主要进行消息的解码和更新pullFromWhichNodeTable
     public PullResult processPullResult(final MessageQueue mq, final PullResult pullResult,
         final SubscriptionData subscriptionData) {
         PullResultExt pullResultExt = (PullResultExt) pullResult;
@@ -137,18 +139,19 @@ public class PullAPIWrapper {
 
     public PullResult pullKernelImpl(
         final MessageQueue mq,
-        final String subExpression,
+        final String subExpression, //订阅tag
         final String expressionType,
-        final long subVersion,
-        final long offset,
-        final int maxNums,
+        final long subVersion, //订阅时间
+        final long offset, // 拉取消息的位置
+        final int maxNums, //拉取消息的数量
         final int sysFlag,
-        final long commitOffset,
-        final long brokerSuspendMaxTimeMillis,
-        final long timeoutMillis,
-        final CommunicationMode communicationMode,
+        final long commitOffset, //提交的offset
+        final long brokerSuspendMaxTimeMillis, // broke维持最大时间，默认15秒
+        final long timeoutMillis, //客户端超时时间
+        final CommunicationMode communicationMode, //SYNC, ASYNC, ONEWAY, 默认异步
         final PullCallback pullCallback
     ) throws MQClientException, RemotingException, MQBrokerException, InterruptedException {
+        //为了看是否应该从slave拉取消息，主要为了防止master压力过大或挂掉的情况
         FindBrokerResult findBrokerResult =
             this.mQClientFactory.findBrokerAddressInSubscribe(mq.getBrokerName(),
                 this.recalculatePullFromWhichNode(mq), false);
@@ -192,6 +195,7 @@ public class PullAPIWrapper {
                 brokerAddr = computPullFromWhichFilterServer(mq.getTopic(), brokerAddr);
             }
 
+            //拉取信息
             PullResult pullResult = this.mQClientFactory.getMQClientAPIImpl().pullMessage(
                 brokerAddr,
                 requestHeader,
@@ -233,6 +237,7 @@ public class PullAPIWrapper {
         );
     }
 
+    //从pullFromWhichNodeTable获取brokerid，不存在返回0，即master
     public long recalculatePullFromWhichNode(final MessageQueue mq) {
         if (this.isConnectBrokerByUser()) {
             return this.defaultBrokerId;

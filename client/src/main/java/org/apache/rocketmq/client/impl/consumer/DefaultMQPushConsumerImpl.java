@@ -280,6 +280,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
             @Override
             public void onSuccess(PullResult pullResult) {
                 if (pullResult != null) {
+                    //解码
                     pullResult = DefaultMQPushConsumerImpl.this.pullAPIWrapper.processPullResult(pullRequest.getMessageQueue(), pullResult,
                         subscriptionData);
 
@@ -376,6 +377,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
                     log.warn("execute the pull request exception", e);
                 }
 
+                //发生异常时延时重试
                 DefaultMQPushConsumerImpl.this.executePullRequestLater(pullRequest, PULL_TIME_DELAY_MILLS_WHEN_EXCEPTION);
             }
         };

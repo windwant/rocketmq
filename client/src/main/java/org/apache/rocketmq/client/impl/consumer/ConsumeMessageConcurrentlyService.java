@@ -197,6 +197,13 @@ public class ConsumeMessageConcurrentlyService implements ConsumeMessageService 
         return result;
     }
 
+    /**
+     * 根据 consumeBatchSize 及 消息数量 判断需要提交消费信息请求批次
+     * @param msgs
+     * @param processQueue
+     * @param messageQueue
+     * @param dispatchToConsume
+     */
     @Override
     public void submitConsumeRequest(
         final List<MessageExt> msgs,
@@ -256,6 +263,16 @@ public class ConsumeMessageConcurrentlyService implements ConsumeMessageService 
         }
     }
 
+    /**
+     * 根据返回的状态，将集群模式消费失败的消息，重新发送到broker
+     * 需要消费者实现MessageListenerConcurrently.consumeMessage(final List msgs, ConsumeConcurrentlyContext context)方法时，
+     * 假设一共100个消息，消费了10个，消费第11个时发生异常，需要设置context.setAckIndex(11)，然后返回，这样第11至100个消息会被重新发送至broker，等待下一次消费。
+     * 然后从ProcessQueue中移除消费过的消息。
+     * 最后更新最新的offset至RemoteBrokerOffsetStore。
+     * @param status
+     * @param context
+     * @param consumeRequest
+     */
     public void processConsumeResult(
         final ConsumeConcurrentlyStatus status,
         final ConsumeConcurrentlyContext context,
@@ -363,6 +380,9 @@ public class ConsumeMessageConcurrentlyService implements ConsumeMessageService 
         }, 5000, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * 消费信息请求
+     */
     class ConsumeRequest implements Runnable {
         private final List<MessageExt> msgs;
         private final ProcessQueue processQueue;

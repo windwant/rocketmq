@@ -27,9 +27,12 @@ import org.apache.rocketmq.common.ServiceThread;
 import org.apache.rocketmq.common.utils.ThreadUtils;
 import org.slf4j.Logger;
 
+/**
+ * 对拉取请求进行了封装，使其队列化
+ */
 public class PullMessageService extends ServiceThread {
     private final Logger log = ClientLogger.getLog();
-    private final LinkedBlockingQueue<PullRequest> pullRequestQueue = new LinkedBlockingQueue<PullRequest>();
+    private final LinkedBlockingQueue<PullRequest> pullRequestQueue = new LinkedBlockingQueue<PullRequest>();//拉取队列
     private final MQClientInstance mQClientFactory;
     private final ScheduledExecutorService scheduledExecutorService = Executors
         .newSingleThreadScheduledExecutor(new ThreadFactory() {
@@ -43,6 +46,7 @@ public class PullMessageService extends ServiceThread {
         this.mQClientFactory = mQClientFactory;
     }
 
+    //延迟请求
     public void executePullRequestLater(final PullRequest pullRequest, final long timeDelay) {
         this.scheduledExecutorService.schedule(new Runnable() {
 
