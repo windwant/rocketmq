@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
 /**
+ * 添加重置功能
  * Add reset feature for @see java.util.concurrent.CountDownLatch2
  */
 public class CountDownLatch2 {
@@ -156,7 +157,7 @@ public class CountDownLatch2 {
 
     /**
      * Synchronization control For CountDownLatch2.
-     * Uses AQS state to represent count.
+     * Uses AQS--acquireSharedInterruptibly state to represent count.
      */
     private static final class Sync extends AbstractQueuedSynchronizer {
         private static final long serialVersionUID = 4982264981922014374L;

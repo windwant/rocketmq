@@ -27,6 +27,13 @@ import org.slf4j.LoggerFactory;
 public class MQProtosHelper {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.COMMON_LOGGER_NAME);
 
+    /**
+     * 注册broker到NameServer
+     * @param nsaddr
+     * @param brokerAddr
+     * @param timeoutMillis
+     * @return
+     */
     public static boolean registerBrokerToNameServer(final String nsaddr, final String brokerAddr,
         final long timeoutMillis) {
         RegisterBrokerRequestHeader requestHeader = new RegisterBrokerRequestHeader();

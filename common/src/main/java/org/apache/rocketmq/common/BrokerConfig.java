@@ -43,15 +43,15 @@ public class BrokerConfig {
     @ImportantField
     private long brokerId = MixAll.MASTER_ID; //0:master 非0:slave
     private int brokerPermission = PermName.PERM_READ | PermName.PERM_WRITE;
-    private int defaultTopicQueueNums = 8;
+    private int defaultTopicQueueNums = 8;//默认主题队列数量
     @ImportantField
-    private boolean autoCreateTopicEnable = true;
+    private boolean autoCreateTopicEnable = true; //自动创建主题队列
 
-    private boolean clusterTopicEnable = true;
+    private boolean clusterTopicEnable = true; //集群主题队列
 
     private boolean brokerTopicEnable = true;
     @ImportantField
-    private boolean autoCreateSubscriptionGroup = true;
+    private boolean autoCreateSubscriptionGroup = true; //自动创建订阅群组
     private String messageStorePlugIn = "";
 
     /**
@@ -64,26 +64,26 @@ public class BrokerConfig {
     private int clientManageThreadPoolNums = 32;
     private int consumerManageThreadPoolNums = 32;
 
-    private int flushConsumerOffsetInterval = 1000 * 5;
+    private int flushConsumerOffsetInterval = 1000 * 5; //flush消费端文件偏移时间戳 默认5秒
 
-    private int flushConsumerOffsetHistoryInterval = 1000 * 60;
+    private int flushConsumerOffsetHistoryInterval = 1000 * 60; //flush消费端历史文件偏移时间戳 默认1
 
     @ImportantField
-    private boolean rejectTransactionMessage = false;
+    private boolean rejectTransactionMessage = false;//事务消息
     @ImportantField
-    private boolean fetchNamesrvAddrByAddressServer = false;//由地址服务动态获取
-    private int sendThreadPoolQueueCapacity = 10000;
-    private int pullThreadPoolQueueCapacity = 100000;
-    private int clientManagerThreadPoolQueueCapacity = 1000000;
-    private int consumerManagerThreadPoolQueueCapacity = 1000000;
+    private boolean fetchNamesrvAddrByAddressServer = false;//是否从地址服务器寻找Name Server地址
+    private int sendThreadPoolQueueCapacity = 10000; //发送消息线程池队列容量
+    private int pullThreadPoolQueueCapacity = 100000;// 订阅消息线程池队列容量
+    private int clientManagerThreadPoolQueueCapacity = 1000000;//客户端管理线程池队列容量
+    private int consumerManagerThreadPoolQueueCapacity = 1000000;//消费端管理线程池队列容量
 
-    private int filterServerNums = 0;
+    private int filterServerNums = 0; //过滤服务器数量
 
-    private boolean longPollingEnable = true;
+    private boolean longPollingEnable = true; //Consumer订阅消息时，Broker是否开启长轮询
 
-    private long shortPollingTimeMills = 1000;
+    private long shortPollingTimeMills = 1000; //短轮询，服务器挂起时间
 
-    private boolean notifyConsumerIdsChangedEnable = true;
+    private boolean notifyConsumerIdsChangedEnable = true; //
 
     private boolean highSpeedMode = false;
 
@@ -101,8 +101,8 @@ public class BrokerConfig {
 
     private boolean slaveReadEnable = false;
 
-    private boolean disableConsumeIfConsumerReadSlowly = false;
-    private long consumerFallbehindThreshold = 1024L * 1024 * 1024 * 16;
+    private boolean disableConsumeIfConsumerReadSlowly = false;//消费端消息消费缓慢时禁用
+    private long consumerFallbehindThreshold = 1024L * 1024 * 1024 * 16; //消费落后阈值
 
     private long waitTimeMillsInSendQueue = 200;
 

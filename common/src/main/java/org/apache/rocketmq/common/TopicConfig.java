@@ -19,7 +19,7 @@ package org.apache.rocketmq.common;
 import org.apache.rocketmq.common.constant.PermName;
 
 public class TopicConfig {
-    private static final String SEPARATOR = " ";
+    private static final String SEPARATOR = " ";//主题分隔符
     public static int defaultReadQueueNums = 16;
     public static int defaultWriteQueueNums = 16;
     private String topicName;

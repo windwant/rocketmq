@@ -22,6 +22,7 @@ import java.util.Map;
 
 /**
  * Filter factory: support other filter to register.
+ * ++ filter存储
  */
 public class FilterFactory {
 

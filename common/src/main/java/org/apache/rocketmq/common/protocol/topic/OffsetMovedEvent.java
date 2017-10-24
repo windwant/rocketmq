@@ -21,8 +21,8 @@ import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.remoting.protocol.RemotingSerializable;
 
 public class OffsetMovedEvent extends RemotingSerializable {
-    private String consumerGroup;
-    private MessageQueue messageQueue;
+    private String consumerGroup; //消费群组
+    private MessageQueue messageQueue; //消息队列
     private long offsetRequest;
     private long offsetNew;
 

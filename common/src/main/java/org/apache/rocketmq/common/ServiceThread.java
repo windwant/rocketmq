@@ -28,9 +28,9 @@ public abstract class ServiceThread implements Runnable {
     private static final long JOIN_TIME = 90 * 1000;
 
     protected final Thread thread;
-    protected final CountDownLatch2 waitPoint = new CountDownLatch2(1);
-    protected volatile AtomicBoolean hasNotified = new AtomicBoolean(false);
-    protected volatile boolean stopped = false;
+    protected final CountDownLatch2 waitPoint = new CountDownLatch2(1);//阻塞控制
+    protected volatile AtomicBoolean hasNotified = new AtomicBoolean(false);//是否被唤醒
+    protected volatile boolean stopped = false; //运行标识
 
     public ServiceThread() {
         this.thread = new Thread(this, this.getServiceName());
@@ -50,17 +50,17 @@ public abstract class ServiceThread implements Runnable {
         this.stopped = true;
         log.info("shutdown thread " + this.getServiceName() + " interrupt " + interrupt);
 
-        if (hasNotified.compareAndSet(false, true)) {
+        if (hasNotified.compareAndSet(false, true)) {//未被唤醒过，则处理waitPoint
             waitPoint.countDown(); // notify
         }
 
         try {
-            if (interrupt) {
+            if (interrupt) {//可中断
                 this.thread.interrupt();
             }
 
             long beginTime = System.currentTimeMillis();
-            if (!this.thread.isDaemon()) {
+            if (!this.thread.isDaemon()) {//守护线程
                 this.thread.join(this.getJointime());
             }
             long eclipseTime = System.currentTimeMillis() - beginTime;

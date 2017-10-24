@@ -34,7 +34,7 @@ public abstract class ConfigManager {
         String fileName = null;
         try {
             fileName = this.configFilePath();
-            String jsonString = MixAll.file2String(fileName);
+            String jsonString = MixAll.file2String(fileName);//file 转化为字符串
 
             if (null == jsonString || jsonString.length() == 0) {
                 return this.loadBak();
@@ -49,7 +49,7 @@ public abstract class ConfigManager {
         }
     }
 
-    public abstract String configFilePath();
+    public abstract String configFilePath();//抽象方法
 
     private boolean loadBak() {
         String fileName = null;
