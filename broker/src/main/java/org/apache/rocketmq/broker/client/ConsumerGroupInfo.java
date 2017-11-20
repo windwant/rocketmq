@@ -37,15 +37,15 @@ import org.slf4j.LoggerFactory;
  */
 public class ConsumerGroupInfo {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
-    private final String groupName;
+    private final String groupName; //消息群组名称
     private final ConcurrentMap<String/* Topic */, SubscriptionData> subscriptionTable =
-        new ConcurrentHashMap<String, SubscriptionData>();
+        new ConcurrentHashMap<String, SubscriptionData>(); //主题 订阅信息 关系
     private final ConcurrentMap<Channel, ClientChannelInfo> channelInfoTable =
-        new ConcurrentHashMap<Channel, ClientChannelInfo>(16);
-    private volatile ConsumeType consumeType;
-    private volatile MessageModel messageModel;
-    private volatile ConsumeFromWhere consumeFromWhere;
-    private volatile long lastUpdateTimestamp = System.currentTimeMillis();
+        new ConcurrentHashMap<Channel, ClientChannelInfo>(16);//连接通道 通道信息
+    private volatile ConsumeType consumeType; //客户端消费模式  推 拉
+    private volatile MessageModel messageModel; //消息类型 广播 集群
+    private volatile ConsumeFromWhere consumeFromWhere; //消费起始 first last timestamp
+    private volatile long lastUpdateTimestamp = System.currentTimeMillis(); //上一次更新时间戳
 
     public ConsumerGroupInfo(String groupName, ConsumeType consumeType, MessageModel messageModel,
         ConsumeFromWhere consumeFromWhere) {

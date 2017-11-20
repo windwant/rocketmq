@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MessageDecoder {
-    public final static int MSG_ID_LENGTH = 8 + 8;
+    public final static int MSG_ID_LENGTH = 8 + 8;//addr（host + port） + offset
 
     public final static Charset CHARSET_UTF8 = Charset.forName("UTF-8");
     public final static int MESSAGE_MAGIC_CODE_POSTION = 4;
